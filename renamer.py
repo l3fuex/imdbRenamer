@@ -2,28 +2,90 @@ import argparse
 import re
 import logging
 import mimetypes
+import configparser
+import json
 from pathlib import Path
 from datetime import datetime
-import omdb
+from urllib import request
+from urllib.parse import urlencode
 
 logging.basicConfig(
 #    level=logging.DEBUG, format="%(levelname)-8s %(funcName)s:%(lineno)d - %(message)s"
     level=logging.INFO, format="%(levelname)-8s %(message)s"
 )
 
-parser = argparse.ArgumentParser()
-parser.add_argument(
-    "file",
-    nargs="*",
-    help="Path to file which should be renamed",
-)
-parser.add_argument(
-    "-s",
-    "--simulate",
-    help="No renaming",
-    action="store_true",
-)
-args = parser.parse_args()
+
+class OMDbAPI:
+    def __init__(self, baseurl, apikey):
+        self.baseurl = baseurl
+        self.apikey = apikey
+
+
+    def get_title(self, imdbid):
+        params = { "i": imdbid }
+        url = self._build_url(params)
+        response = self._send_request(url)
+
+        if response["Response"] == "True":
+            response.pop("Response")
+            return response
+        else:
+            logging.error("API response: %s", response["Error"])
+
+        return None
+
+
+    def get_episodes(self, imdbid, season):
+        def insert_placeholder():
+            placeholder = {"Placeholder": "No Data"}
+            for index, data in enumerate(response["Episodes"]):
+                if index < int(data["Episode"])-1:
+                    response["Episodes"].insert(index, placeholder)
+
+        params = { "i": imdbid, "Season": season }
+        url = self._build_url(params)
+        response = self._send_request(url)
+
+        if response["Response"] == "True":
+            # Insert placeholder in case an episode is missing
+            insert_placeholder()
+            return response["Episodes"]
+        else:
+            logging.error("API response: %s", response["Error"])
+
+        return []
+
+
+    def search_title(self, title, category, year):
+        params = { "s": title, "type": category, "y": year }
+        url = self._build_url(params)
+        response = self._send_request(url)
+
+        if response["Response"] == "True":
+            return response["Search"]
+        else:
+            logging.error("API response: %s", response["Error"])
+
+        return []
+
+
+    def _build_url(self, params):
+        params["apikey"] = self.apikey
+
+        for key in list(params.keys()):
+            if params[key] is None:
+                params.pop(key)
+
+        return f"{self.baseurl}?{urlencode(params)}"
+
+
+    def _send_request(self, url):
+        logging.debug("Sending API call: %s", url)
+
+        with request.urlopen(url) as response:
+            data = json.loads(response.read().decode())
+
+        return data
 
 
 def info_parser(file):
@@ -136,9 +198,7 @@ def episode_parser(file):
     return season, episode
 
 
-def omdb_search(title, category, year):
-    matches = omdb.search_title(title, category, year)
-
+def select_match(matches, title):
     if len(matches) == 0:
         imdbid = None
 
@@ -166,6 +226,27 @@ def omdb_search(title, category, year):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "file",
+        nargs="*",
+        help="Path to file which should be renamed",
+    )
+    parser.add_argument(
+        "-s",
+        "--simulate",
+        help="No renaming",
+        action="store_true",
+    )
+    args = parser.parse_args()
+
+    config = configparser.ConfigParser()
+    config.read(Path(__file__).resolve().parent / "config.ini")
+
+    omdb = OMDbAPI(
+        config.get("OMDb", "url"),
+        config.get("OMDb", "apikey")
+    )
     prevtitle = prevseason = prevepisodes = metadata = None
 
     for index, file in enumerate(args.file):
@@ -206,7 +287,8 @@ def main():
             logging.debug("Normal mode")
             if imdbid is None:
                 logging.debug("Search for title and retrieve imdbID")
-                imdbid = omdb_search(title, category, year)
+                matches = omdb.search_title(title, category, year)
+                imdbid = select_match(matches, title)
             if imdbid is None:
                 logging.error("Renaming aborted! No search results found for given pattern <%s>", title)
                 continue
