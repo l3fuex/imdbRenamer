@@ -10,8 +10,8 @@ from urllib import request
 from urllib.parse import urlencode
 
 logging.basicConfig(
-#    level=logging.DEBUG, format="%(levelname)-8s %(funcName)s:%(lineno)d - %(message)s"
-    level=logging.INFO, format="%(levelname)-8s %(message)s"
+    level=logging.DEBUG, format="%(levelname)-8s %(funcName)s:%(lineno)d - %(message)s"
+#    level=logging.INFO, format="%(levelname)-8s %(message)s"
 )
 
 
@@ -99,7 +99,7 @@ def info_parser(file):
             with open(element, "rb") as f:
                 content = f.read()
 
-            pattern = r"(?:www.)?imdb.com/title/(tt\d*)"
+            pattern = r"(?:www.)?imdb.com/(?:[a-z]{2}/)?title/(tt\d*)"
             result = re.findall(pattern, str(content), flags=re.IGNORECASE)
             if result:
                 imdbid = result[0]
