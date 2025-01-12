@@ -31,7 +31,7 @@ python3 renamer.py -s /path/to/movie_a.mkv /path/to/movie_b.mkv /path/to/movie_x
 ```
 
 ## License
-This script is provided under the [Creative Commons BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) license.
+This software is provided under the [Creative Commons BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) license.
 
 ## Acknowledgments
 - [OMDb API](https://www.omdbapi.com/) for metadata retrieval.
