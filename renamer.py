@@ -12,8 +12,8 @@ from urllib import request
 from urllib.parse import urlencode
 
 logging.basicConfig(
-    level=logging.DEBUG, format="%(levelname)-8s %(funcName)s:%(lineno)d - %(message)s"
-#    level=logging.INFO, format="%(levelname)-8s %(message)s"
+#    level=logging.DEBUG, format="%(levelname)-8s %(funcName)s:%(lineno)d - %(message)s"
+    level=logging.INFO, format="%(levelname)-8s %(message)s"
 )
 
 
@@ -190,8 +190,8 @@ def episode_parser(file):
     pattern = r".*[sS](\d{1,2})[eE](\d{1,2}).*"
     results = re.match(pattern, file)
     if results:
-        season = results.group(1).zfill(2)
-        episode = results.group(2).zfill(2)
+        season = int(results.group(1))
+        episode = int(results.group(2))
         logging.debug("season: %s, episode: %s", season, episode)
     else:
         season = episode = None
@@ -240,6 +240,13 @@ def main():
         help="No renaming",
         action="store_true",
     )
+    parser.add_argument(
+        "-o",
+        "--offset",
+        help="Episode offset",
+        type=int,
+        default=0,
+    )
     args = parser.parse_args()
 
     config = configparser.ConfigParser()
@@ -273,6 +280,7 @@ def main():
         year = year_parser(file)
         title = title_parser(file, year)
         season, episode = episode_parser(file)
+        episode = episode + args.offset
 
         if season is not None:
             category = "series"
@@ -308,11 +316,11 @@ def main():
 
         # Build series name
         if category == "series":
-            if int(episode) > len(episodes) or "Placeholder" in episodes[int(episode)-1]:
+            if episode > len(episodes) or "Placeholder" in episodes[episode-1]:
                 logging.error("Missing episode data! Renaming skipped for file <%s> ", path.name)
                 continue
-            
-            name = f"{metadata['Title']} - S{season}E{episode} - {episodes[int(episode)-1]['Title']}{path.suffix}"
+
+            name = f"{metadata['Title']} - S{season:02d}E{episode:02d} - {episodes[episode - 1]['Title']}{path.suffix}"
 
         # Build movie name
         if category == "movie":
