@@ -101,7 +101,7 @@ def info_parser(file):
             with open(element, "rb") as f:
                 content = f.read()
 
-            pattern = r"(?:www.)?imdb.com/(?:[a-z]{2}/)?title/(tt\d*)"
+            pattern = r"(?:www.)?imdb.(?:com|de)/(?:[a-z]{2}/)?title/(tt\d*)"
             result = re.findall(pattern, str(content), flags=re.IGNORECASE)
             if result:
                 imdbid = result[0]
