@@ -12,8 +12,8 @@ from urllib import request
 from urllib.parse import urlencode
 
 logging.basicConfig(
-#    level=logging.DEBUG, format="%(levelname)-8s %(funcName)s:%(lineno)d - %(message)s"
-    level=logging.INFO, format="%(levelname)-8s %(message)s"
+    level=logging.DEBUG, format="%(levelname)-8s %(funcName)s:%(lineno)d - %(message)s"
+#    level=logging.INFO, format="%(levelname)-8s %(message)s"
 )
 
 
@@ -308,11 +308,11 @@ def main():
 
         # Build series name
         if category == "series":
-            if "Placeholder" not in episodes[int(episode)-1]:
-                name = f"{metadata['Title']} - S{season}E{episode} - {episodes[int(episode)-1]['Title']}{path.suffix}"
-            else:
+            if int(episode) > len(episodes) or "Placeholder" in episodes[int(episode)-1]:
                 logging.error("Missing episode data! Renaming skipped for file <%s> ", path.name)
                 continue
+            
+            name = f"{metadata['Title']} - S{season}E{episode} - {episodes[int(episode)-1]['Title']}{path.suffix}"
 
         # Build movie name
         if category == "movie":
