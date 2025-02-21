@@ -12,8 +12,8 @@ from urllib import request
 from urllib.parse import urlencode
 
 logging.basicConfig(
-    level=logging.DEBUG, format="%(levelname)-8s %(funcName)s:%(lineno)d - %(message)s"
-#    level=logging.INFO, format="%(levelname)-8s %(message)s"
+#    level=logging.DEBUG, format="%(levelname)-8s %(funcName)s:%(lineno)d - %(message)s"
+    level=logging.INFO, format="%(levelname)-8s %(message)s"
 )
 
 
