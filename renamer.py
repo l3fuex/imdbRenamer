@@ -12,8 +12,8 @@ from urllib import request
 from urllib.parse import urlencode
 
 logging.basicConfig(
-#    level=logging.DEBUG, format="%(levelname)-8s %(funcName)s:%(lineno)d - %(message)s"
-    level=logging.INFO, format="%(levelname)-8s %(message)s"
+    level=logging.DEBUG, format="%(levelname)-8s %(funcName)s:%(lineno)d - %(message)s"
+#    level=logging.INFO, format="%(levelname)-8s %(message)s"
 )
 
 
@@ -169,7 +169,7 @@ def title_parser(file, year):
     logging.debug("Sanitized title string: <%s>", title)
 
     # In case the pattern S01E01 is found, return the leading string as the title
-    pattern = r"[sS]\d{1,2}[eE]\d{1,2}"
+    pattern = r"[sS]\d{1,2}[eE]\d{1,2}|\d{1,2}[xX]\d{1,2}"
     results = re.findall(pattern, title)
     if results:
         title = re.split(results[0], title)
@@ -186,14 +186,21 @@ def title_parser(file, year):
     return title
 
 
-def episode_parser(file):
-    pattern = r".*[sS](\d{1,2})[eE](\d{1,2}).*"
-    results = re.match(pattern, file)
-    if results:
-        season = int(results.group(1))
-        episode = int(results.group(2))
-        logging.debug("season: %s, episode: %s", season, episode)
-    else:
+def episode_parser(file, offset=0):
+    patterns = [
+        r".*[sS](\d{1,2})[eE](\d{1,2}).*",
+        r".*(\d{1,2})[xX](\d{1,2}).*",
+    ]
+
+    for pattern in patterns:
+        result = re.match(pattern, file)
+        if result:
+            season = int(result.group(1))
+            episode = int(result.group(2)) + offset
+            logging.debug("season: %s, episode: %s", season, episode)
+            break
+
+    if result is None:
         season = episode = None
         logging.debug("No season or episode found!")
 
@@ -279,8 +286,7 @@ def main():
         imdbid = info_parser(file)
         year = year_parser(file)
         title = title_parser(file, year)
-        season, episode = episode_parser(file)
-        episode = episode + args.offset
+        season, episode = episode_parser(file, args.offset)
 
         if season is not None:
             category = "series"
