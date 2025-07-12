@@ -239,18 +239,18 @@ def main():
     parser.add_argument(
         "file",
         nargs="*",
-        help="Path to file which should be renamed",
+        help="path to file which should be renamed",
     )
     parser.add_argument(
         "-s",
         "--simulate",
-        help="No renaming",
+        help="no renaming",
         action="store_true",
     )
     parser.add_argument(
         "-o",
         "--offset",
-        help="Episode offset",
+        help="episode offset",
         type=int,
         default=0,
     )
@@ -346,3 +346,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
