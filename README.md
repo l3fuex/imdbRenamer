@@ -1,4 +1,4 @@
-# Renamer
+# IMDb-Renamer
 The purpose of this program is to rename movie and TV show files based on metadata retrieved from the OMDb API, making it ideal for organizing a media library.
 
 It does so by looking for `.nfo` files in the same directory as the video file. These files often include a link to the IMDb website, which, in turn, contains the IMDb ID. The info parser attempts to extract this IMDb ID to use it as the source of truth for further processing.
