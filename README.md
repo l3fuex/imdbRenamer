@@ -14,20 +14,20 @@ To minimize API calls when renaming an entire season, the software operates in b
 ## Installation
 ```bash
 # Copy the code to your machine
-git clone https://github.com/l3fuex/renamer
+git clone https://github.com/l3fuex/imdbRenamer
 
 # Add OMDb API key to the configuration file
-mv renamer/config.ini.example renamer/config.ini && chmod 600 renamer/config.ini
-vi renamer/config.ini
+mv imdbRenamer/config.ini.example imdbRenamer/config.ini && chmod 600 imdbRenamer/config.ini
+vi imdbRenamer/config.ini
 
 # Make the script executable
-chmod +x renamer/*.py
+chmod +x imdbRenamer/*.py
 ```
 
 ## Usage
 ```bash
-python3 renamer.py /path/to/movie.mkv
-python3 renamer.py -s /path/to/movie_a.mkv /path/to/movie_b.mkv /path/to/movie_x.mkv
+python3 imdbRenamer.py /path/to/movie.mkv
+python3 imdbRenamer.py -s /path/to/movie_a.mkv /path/to/movie_b.mkv /path/to/movie_x.mkv
 ```
 
 ## License
