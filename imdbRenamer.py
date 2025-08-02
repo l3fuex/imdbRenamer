@@ -11,11 +11,6 @@ from datetime import datetime
 from urllib import request
 from urllib.parse import urlencode
 
-logging.basicConfig(
-#    level=logging.DEBUG, format="%(levelname)-8s %(funcName)s:%(lineno)d - %(message)s"
-    level=logging.INFO, format="%(levelname)-8s %(message)s"
-)
-
 
 class OMDbAPI:
     def __init__(self, baseurl, apikey):
@@ -248,6 +243,12 @@ def main():
         action="store_true",
     )
     parser.add_argument(
+        "-v",
+        "--verbose",
+        help="Verbose output",
+        action="store_true",
+    )
+    parser.add_argument(
         "-o",
         "--offset",
         help="episode offset",
@@ -256,15 +257,30 @@ def main():
     )
     args = parser.parse_args()
 
+    # Define logging level
+    if args.verbose:
+        logging.basicConfig(
+            level=logging.DEBUG, format="%(levelname)-8s %(funcName)s:%(lineno)d - %(message)s"
+        )
+    else:
+        logging.basicConfig(
+            level=logging.INFO, format="%(levelname)-8s %(message)s"
+        )
+
+    # Read configuration
     config = configparser.ConfigParser()
     config.read(Path(__file__).resolve().parent / "config.ini")
 
+    # Instantiation of OMDbAPI class
     omdb = OMDbAPI(
         config.get("OMDb", "url"),
         config.get("OMDb", "apikey")
     )
+
+    # Initialize variables
     prevtitle = prevseason = prevepisodes = metadata = None
 
+    # Process file arguments
     for index, file in enumerate(args.file):
         path = Path(file)
         episodes = None
@@ -346,4 +362,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
